@@ -38,7 +38,7 @@
       "fontStyle": "bold",
       "hoverFontStyle": "bold",
       "defaultLabelSize": 14
-      "defaultEdgeColor": "rgba(211, 211, 211, 0.5)"
+      "defaultEdgeColor": "#D3D3D3"
     },
     "graphProperties": {
       "maxEdgeSize": 0.0001,
