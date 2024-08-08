@@ -297,12 +297,13 @@ background-position: -11px -13px;
 }
 
 #search .results {
-	display: none;
-/*	border: 1px solid #999;*/
-	margin: 6px;
-	/*height: 150px;*/
-	overflow-y: scroll;
-	overflow-x: hidden;
+    display: block; /* Ensure the results are visible */
+    margin: 6px;
+    height: 150px; /* Set a fixed height to enable scrolling */
+    overflow-y: scroll; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Hide horizontal scrolling */
+    border: 1px solid #999; /* Optional: border to make it visually distinct */
+    background-color: #fff; /* Ensure a background color is set */
 }
 
 #search .results b {
