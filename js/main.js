@@ -58,6 +58,7 @@ function initSigma(config) {
         defaultLabelHoverColor: "#fff",
         labelThreshold: 10,
         defaultEdgeType: "curve",
+	defaultEdgeColor: "rgba(211, 211, 211, 0.5)", // Set custom default edge color
         hoverFontStyle: "bold",
         fontStyle: "bold",
         activeFontStyle: "bold"
