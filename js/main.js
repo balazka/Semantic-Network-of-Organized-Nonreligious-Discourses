@@ -52,11 +52,11 @@ function initSigma(config) {
 	else
 		drawProps={
         defaultLabelColor: "#000",
-        defaultLabelSize: 14,
+        defaultLabelSize: 8,
         defaultLabelBGColor: "#ddd",
         defaultHoverLabelBGColor: "#002147",
         defaultLabelHoverColor: "#fff",
-        labelThreshold: 10,
+        labelThreshold: 12,
         defaultEdgeType: "curve",
 	defaultEdgeColor: "rgba(211, 211, 211, 0.5)", // Set custom default edge color
         hoverFontStyle: "bold",
