@@ -3,8 +3,8 @@
   "version": "1.0",
   "data": "data.json",
   "logo": {
-    "file": "images/Affiliation.png",
-    "link": "https://balazka.github.io",
+    "file": "",
+    "link": "",
     "text": "Dominik Balazka"
   },
   "text": {
@@ -33,7 +33,7 @@
       "defaultLabelBGColor": "#ddd",
       "activeFontStyle": "bold",
       "defaultLabelColor": "#000",
-      "labelThreshold": 9,
+      "labelThreshold": 7,
       "defaultLabelHoverColor": "#fff",
       "fontStyle": "bold",
       "hoverFontStyle": "bold",
