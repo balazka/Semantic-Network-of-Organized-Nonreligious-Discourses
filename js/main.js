@@ -436,112 +436,105 @@ function nodeNormal() {
 }
 
 function nodeActive(a) {
-
-	var groupByDirection=false;
-	if (config.informationPanel.groupByEdgeDirection && config.informationPanel.groupByEdgeDirection==true)	groupByDirection=true;
-	
+    var groupByDirection = false;
+    if (config.informationPanel.groupByEdgeDirection && config.informationPanel.groupByEdgeDirection === true) {
+        groupByDirection = true;
+    }
+    
     sigInst.neighbors = {};
-    sigInst.detail = !0;
+    sigInst.detail = true;
     var b = sigInst._core.graph.nodesIndex[a];
-    showGroups(!1);
-	var outgoing={},incoming={},mutual={};//SAH
+    showGroups(false);
+    
+    var outgoing = {}, incoming = {}, mutual = {}; // SAH
+
     sigInst.iterEdges(function (b) {
-        b.attr.lineWidth = !1;
-        b.hidden = !0;
-        
-        n={
+        b.attr.lineWidth = false;
+        b.hidden = true;
+
+        var n = {
             name: b.label,
             colour: b.color
         };
-        
-   	   if (a==b.source) outgoing[b.target]=n;		//SAH
-	   else if (a==b.target) incoming[b.source]=n;		//SAH
-       if (a == b.source || a == b.target) sigInst.neighbors[a == b.target ? b.source : b.target] = n;
-       b.hidden = !1, b.attr.color = "rgba(0, 0, 0, 1)";
+
+        if (a === b.source) outgoing[b.target] = n; // SAH
+        else if (a === b.target) incoming[b.source] = n; // SAH
+
+        if (a === b.source || a === b.target) {
+            sigInst.neighbors[a === b.target ? b.source : b.target] = n;
+        }
+
+        b.hidden = false;
+        b.attr.color = "rgba(0, 0, 0, 1)";
     });
+
+    var createList = function (c) {
+        var f = [];
+        var e = [];
+
+        for (var g in c) {
+            var d = sigInst._core.graph.nodesIndex[g];
+            d.hidden = false;
+            d.attr.lineWidth = false;
+            d.attr.color = c[g].colour;
+
+            if (a !== g) {
+                e.push({
+                    id: g,
+                    name: d.label,
+                    group: (c[g].name) ? c[g].name : "",
+                    colour: c[g].colour
+                });
+            }
+        }
+
+        // Sort the nodes alphabetically by name
+        e.sort(function (a, b) {
+            var nameA = a.name.toLowerCase();
+            var nameB = b.name.toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+
+        var d = "";
+        for (var g in e) {
+            var c = e[g];
+            f.push('<li class="membership"><a href="#' + c.name + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + c.id + '\'])" onclick="nodeActive(\'' + c.id + '\')" onmouseout="sigInst.refresh()">' + c.name + "</a></li>");
+        }
+
+        return f;
+    };
+
+    // Compute intersection for mutual and remove these from incoming/outgoing
+    if (groupByDirection) {
+        for (var e in outgoing) {
+            if (e in incoming) {
+                mutual[e] = outgoing[e];
+                delete incoming[e];
+                delete outgoing[e];
+            }
+        }
+    }
+
     var f = [];
-    sigInst.iterNodes(function (a) {
-        a.hidden = !0;
-        a.attr.lineWidth = !1;
-        a.attr.color = a.color
-    });
     
     if (groupByDirection) {
-		//SAH - Compute intersection for mutual and remove these from incoming/outgoing
-		for (e in outgoing) {
-			//name=outgoing[e];
-			if (e in incoming) {
-				mutual[e]=outgoing[e];
-				delete incoming[e];
-				delete outgoing[e];
-			}
-		}
-    }
-    
-    var createList=function(c) {
-        var f = [];
-    	var e = [],
-      	 	 //c = sigInst.neighbors,
-       		 g;
-    for (g in c) {
-        var d = sigInst._core.graph.nodesIndex[g];
-        d.hidden = !1;
-        d.attr.lineWidth = !1;
-        d.attr.color = c[g].colour;
-        a != g && e.push({
-            id: g,
-            name: d.label,
-            group: (c[g].name)? c[g].name:"",
-            colour: c[g].colour
-        })
-    }
-    e.sort(function (a, b) {
-        var c = a.group.toLowerCase(),
-            d = b.group.toLowerCase(),
-            e = a.name.toLowerCase(),
-            f = b.name.toLowerCase();
-        return c != d ? c < d ? -1 : c > d ? 1 : 0 : e < f ? -1 : e > f ? 1 : 0
-    });
-    d = "";
-		for (g in e) {
-			c = e[g];
-			/*if (c.group != d) {
-				d = c.group;
-				f.push('<li class="cf" rel="' + c.color + '"><div class=""></div><div class="">' + d + "</div></li>");
-			}*/
-			f.push('<li class="membership"><a href="#' + c.name + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + c.id + '\'])\" onclick=\"nodeActive(\'' + c.id + '\')" onmouseout="sigInst.refresh()">' + c.name + "</a></li>");
-		}
-		return f;
-	}
-	
-	/*console.log("mutual:");
-	console.log(mutual);
-	console.log("incoming:");
-	console.log(incoming);
-	console.log("outgoing:");
-	console.log(outgoing);*/
-	
-	
-	var f=[];
-	
-	//console.log("neighbors:");
-	//console.log(sigInst.neighbors);
+        var size = Object.size(mutual);
+        f.push("<h2>Mutual (" + size + ")</h2>");
+        f = (size > 0) ? f.concat(createList(mutual)) : f.push("No mutual links<br>");
 
-	if (groupByDirection) {
-		size=Object.size(mutual);
-		f.push("<h2>Mututal (" + size + ")</h2>");
-		(size>0)? f=f.concat(createList(mutual)) : f.push("No mutual links<br>");
-		size=Object.size(incoming);
-		f.push("<h2>Incoming (" + size + ")</h2>");
-		(size>0)? f=f.concat(createList(incoming)) : f.push("No incoming links<br>");
-		size=Object.size(outgoing);
-		f.push("<h2>Outgoing (" + size + ")</h2>");
-		(size>0)? f=f.concat(createList(outgoing)) : f.push("No outgoing links<br>");
-	} else {
-		f=f.concat(createList(sigInst.neighbors));
-	}
-	//b is object of active node -- SAH
-    b.hidden = !1;
+        size = Object.size(incoming);
+        f.push("<h2>Incoming (" + size + ")</h2>");
+        f = (size > 0) ? f.concat(createList(incoming)) : f.push("No incoming links<br>");
+
+        size = Object.size(outgoing);
+        f.push("<h2>Outgoing (" + size + ")</h2>");
+        f = (size > 0) ? f.concat(createList(outgoing)) : f.push("No outgoing links<br>");
+    } else {
+        f = f.concat(createList(sigInst.neighbors));
+    }
+
+    // b is the object of the active node -- SAH
+    b.hidden = false;
     b.attr.color = b.color;
     b.attr.lineWidth = 6;
     b.attr.strokeStyle = "#000000";
@@ -552,42 +545,45 @@ function nodeActive(a) {
         var a = $(this),
             b = a.attr("rel");
     });
-    f = b.attr;
+
+    var f = b.attr;
     if (f.attributes) {
-  		var image_attribute = false;
-  		if (config.informationPanel.imageAttribute) {
-  			image_attribute=config.informationPanel.imageAttribute;
-  		}
-        e = [];
-        temp_array = [];
-        g = 0;
+        var image_attribute = false;
+        if (config.informationPanel.imageAttribute) {
+            image_attribute = config.informationPanel.imageAttribute;
+        }
+        var e = [];
+        var temp_array = [];
+        var g = 0;
+
         for (var attr in f.attributes) {
-            var d = f.attributes[attr],
-                h = "";
-			if (attr!=image_attribute) {
-                h = '<span><strong>' + attr + ':</strong> ' + d + '</span><br/>'
-			}
-            //temp_array.push(f.attributes[g].attr);
-            e.push(h)
+            var d = f.attributes[attr];
+            var h = "";
+            if (attr !== image_attribute) {
+                h = '<span><strong>' + attr + ':</strong> ' + d + '</span><br/>';
+            }
+            e.push(h);
         }
 
         if (image_attribute) {
-        	//image_index = jQuery.inArray(image_attribute, temp_array);
-        	$GP.info_name.html("<div><img src=" + f.attributes[image_attribute] + " style=\"vertical-align:middle\" /> <span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
+            $GP.info_name.html("<div><img src=" + f.attributes[image_attribute] + " style=\"vertical-align:middle\" /> <span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
         } else {
-        	$GP.info_name.html("<div><span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
+            $GP.info_name.html("<div><span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
         }
+
         // Image field for attribute pane
-        $GP.info_data.html(e.join("<br/>"))
+        $GP.info_data.html(e.join("<br/>"));
     }
+
     $GP.info_data.show();
     $GP.info_p.html("High frequency connections:");
-    $GP.info.animate({width:'show'},350);
-	$GP.info_donnees.hide();
-	$GP.info_donnees.show();
+    $GP.info.animate({width: 'show'}, 350);
+    $GP.info_donnees.hide();
+    $GP.info_donnees.show();
     sigInst.active = a;
     window.location.hash = b.label;
 }
+
 
 function showCluster(a) {
     var nodeIds = sigInst.clusters[a]; // Array of node IDs in the cluster
@@ -652,17 +648,6 @@ function showCluster(a) {
     }
     return false;
 }
-
-function selectNode(nodeElement) {
-    // Remove the selected class from any previously selected node
-    document.querySelectorAll('#mainpanel .node.selected').forEach(function(node) {
-        node.classList.remove('selected');
-    });
-    
-    // Add the selected class to the currently selected node
-    nodeElement.classList.add('selected');
-}
-
 
 
 
