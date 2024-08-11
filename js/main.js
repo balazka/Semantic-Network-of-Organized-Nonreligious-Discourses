@@ -440,14 +440,11 @@ function nodeActive(a) {
     if (config.informationPanel.groupByEdgeDirection && config.informationPanel.groupByEdgeDirection === true) {
         groupByDirection = true;
     }
-
+    
     sigInst.neighbors = {};
     sigInst.detail = true;
     var b = sigInst._core.graph.nodesIndex[a];
-    showGroups(false);
-
-    var outgoing = {}, incoming = {}, mutual = {}; // SAH
-
+    
     // Initially hide all nodes and edges
     sigInst.iterNodes(function (node) {
         node.hidden = true;
@@ -459,6 +456,8 @@ function nodeActive(a) {
         edge.hidden = true;
         edge.attr.lineWidth = false;
     });
+
+    var outgoing = {}, incoming = {}, mutual = {}; // SAH
 
     // Show nodes and edges connected to the active node
     sigInst.iterEdges(function (edge) {
@@ -550,7 +549,7 @@ function nodeActive(a) {
     b.attr.lineWidth = 6; // Increase line width for visibility
     b.attr.strokeStyle = "#000000"; // Set border color
 
-    // Refresh to apply changes
+    // Refresh the graph to apply visibility changes
     sigInst.refresh();
 
     // Update the information panel
@@ -594,6 +593,7 @@ function nodeActive(a) {
     sigInst.active = a;
     window.location.hash = b.label;
 }
+
 
 
 
