@@ -593,3 +593,14 @@ cursor: pointer;
 display: none;
 }
 
+.link-container {
+    display: flex;          /* Use flexbox to arrange items side by side */
+    justify-content: center; /* Centers the links horizontally within the container */
+    align-items: center;     /* Aligns the items vertically */
+    gap: 20px;              /* Adds space between the images (adjust as needed) */
+}
+
+.link-container img {
+    height: 40px;           /* Keeps the images at the desired height */
+    width: auto;            /* Maintains aspect ratio */
+}
