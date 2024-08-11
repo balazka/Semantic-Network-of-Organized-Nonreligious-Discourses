@@ -252,6 +252,21 @@ margin: 0;
 
 }
 
+.header-image {
+    width: 100%;  /* The container takes up 100% of the available width */
+    max-width: 100%;  /* Prevents it from exceeding the parent's width */
+    display: flex;  /* Helps with centering the image if needed */
+    justify-content: center;  /* Centers the image horizontally */
+    padding-bottom: 20px;  /* Optional: Adds space below the image */
+}
+
+.header-image img {
+    width: 100%;  /* Image scales with the container */
+    height: auto;  /* Maintains aspect ratio */
+    display: block;  /* Removes any space below the image */
+}
+
+
 #title {
 font-weight: bold;
 }
