@@ -597,11 +597,11 @@ display: none;
     display: flex;            /* Use flexbox to arrange items side by side */
     justify-content: center;  /* Centers the links horizontally within the container */
     align-items: center;      /* Aligns the items vertically */
-    gap: 20px;                /* Adds space between the images (adjust as needed) */
+    gap: 10px;                /* Adds space between the images (adjust as needed) */
 }
 
 .link-container img {
-    max-height: 40px;         /* Set a maximum height for the images */
+    max-height: 30px;         /* Set a maximum height for the images */
     height: auto;             /* Keep the aspect ratio based on height */
     width: auto;              /* Ensure width scales proportionally */
 }
