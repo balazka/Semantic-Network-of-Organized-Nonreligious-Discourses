@@ -448,13 +448,19 @@ function nodeActive(a) {
 
     var outgoing = {}, incoming = {}, mutual = {}; // SAH
 
-    // Hide all edges initially
-    sigInst.iterEdges(function (edge) {
-        edge.attr.lineWidth = false;
-        edge.hidden = true;
+    // Initially hide all nodes and edges
+    sigInst.iterNodes(function (node) {
+        node.hidden = true;
+        node.attr.lineWidth = false;
+        node.attr.color = node.color; // Preserve original color
     });
 
-    // Process edges to show only those connected to the active node
+    sigInst.iterEdges(function (edge) {
+        edge.hidden = true;
+        edge.attr.lineWidth = false;
+    });
+
+    // Show nodes and edges connected to the active node
     sigInst.iterEdges(function (edge) {
         var n = {
             name: edge.label,
@@ -466,37 +472,31 @@ function nodeActive(a) {
 
         if (a === edge.source || a === edge.target) {
             sigInst.neighbors[a === edge.target ? edge.source : edge.target] = n;
-            edge.hidden = false; // Show edge connected to active node
+            edge.hidden = false; // Show edge
             edge.attr.color = "rgba(0, 0, 0, 1)"; // Set color
         }
     });
 
-    // Hide all nodes initially
     sigInst.iterNodes(function (node) {
-        node.hidden = true;
-        node.attr.lineWidth = false;
-        node.attr.color = node.color;
+        if (node.id in sigInst.neighbors) {
+            node.hidden = false; // Show nodes connected to active node
+            node.attr.lineWidth = false;
+            node.attr.color = sigInst.neighbors[node.id].colour;
+        }
     });
 
-    // Show nodes connected to the active node
     var createList = function (c) {
         var f = [];
         var e = [];
 
         for (var g in c) {
             var d = sigInst._core.graph.nodesIndex[g];
-            d.hidden = false;
-            d.attr.lineWidth = false;
-            d.attr.color = c[g].colour;
-
-            if (a !== g) {
-                e.push({
-                    id: g,
-                    name: d.label,
-                    group: (c[g].name) ? c[g].name : "",
-                    colour: c[g].colour
-                });
-            }
+            e.push({
+                id: g,
+                name: d.label,
+                group: (c[g].name) ? c[g].name : "",
+                colour: c[g].colour
+            });
         }
 
         // Sort the nodes alphabetically by name
@@ -506,7 +506,6 @@ function nodeActive(a) {
             return nameA.localeCompare(nameB);
         });
 
-        var d = "";
         for (var g in e) {
             var c = e[g];
             f.push('<li class="membership"><a href="#' + c.name + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + c.id + '\'])" onclick="nodeActive(\'' + c.id + '\')" onmouseout="sigInst.refresh()">' + c.name + "</a></li>");
@@ -546,12 +545,12 @@ function nodeActive(a) {
 
     // Highlight the active node
     b.hidden = false;
-    b.attr.color = "#FF0000"; // Set color to red for highlighting
+    b.attr.color = "#FF0000"; // Highlight color
     b.attr.size = 10; // Increase size for visibility
     b.attr.lineWidth = 6; // Increase line width for visibility
-    b.attr.strokeStyle = "#000000"; // Set border color to black
+    b.attr.strokeStyle = "#000000"; // Set border color
 
-    // Redraw the graph to apply changes
+    // Refresh to apply changes
     sigInst.refresh();
 
     // Update the information panel
@@ -595,6 +594,7 @@ function nodeActive(a) {
     sigInst.active = a;
     window.location.hash = b.label;
 }
+
 
 
 
