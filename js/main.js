@@ -435,12 +435,17 @@ function nodeNormal() {
     }), sigInst.draw(2, 2, 2, 2), sigInst.neighbors = {}, sigInst.active = !1, $GP.calculating = !1, window.location.hash = "")
 }
 
+
+
+
+
+
 function nodeActive(a) {
     var groupByDirection = false;
     if (config.informationPanel.groupByEdgeDirection && config.informationPanel.groupByEdgeDirection === true) {
         groupByDirection = true;
     }
-    
+
     sigInst.neighbors = {};
     sigInst.detail = true;
     var b = sigInst._core.graph.nodesIndex[a];
@@ -457,32 +462,32 @@ function nodeActive(a) {
         edge.attr.lineWidth = false;
     });
 
-    var outgoing = {}, incoming = {}, mutual = {}; // SAH
+    var outgoing = {}, incoming = {}, mutual = {}; // For edge direction handling
 
     // Show nodes and edges connected to the active node
-    sigInst.iterEdges(function (edge) {
-        var n = {
-            name: edge.label,
-            colour: edge.color
-        };
+    function showEgoNetwork(nodeId) {
+        sigInst.iterEdges(function (edge) {
+            if (nodeId === edge.source || nodeId === edge.target) {
+                edge.hidden = false;
+                edge.attr.color = "rgba(0, 0, 0, 1)"; // Set edge color
+                sigInst.neighbors[nodeId === edge.target ? edge.source : edge.target] = {
+                    name: edge.label,
+                    colour: edge.color
+                };
+            }
+        });
 
-        if (a === edge.source) outgoing[edge.target] = n; // SAH
-        else if (a === edge.target) incoming[edge.source] = n; // SAH
+        sigInst.iterNodes(function (node) {
+            if (nodeId === node.id || Object.keys(sigInst.neighbors).includes(node.id)) {
+                node.hidden = false;
+                node.attr.lineWidth = 1;
+                node.attr.color = sigInst.neighbors[node.id] ? sigInst.neighbors[node.id].colour : node.color;
+            }
+        });
+    }
 
-        if (a === edge.source || a === edge.target) {
-            sigInst.neighbors[a === edge.target ? edge.source : edge.target] = n;
-            edge.hidden = false; // Show edge
-            edge.attr.color = "rgba(0, 0, 0, 1)"; // Set color
-        }
-    });
-
-    sigInst.iterNodes(function (node) {
-        if (node.id in sigInst.neighbors) {
-            node.hidden = false; // Show nodes connected to active node
-            node.attr.lineWidth = false;
-            node.attr.color = sigInst.neighbors[node.id].colour;
-        }
-    });
+    // Show the ego-network of the selected node
+    showEgoNetwork(a);
 
     var createList = function (c) {
         var f = [];
@@ -513,7 +518,7 @@ function nodeActive(a) {
         return f;
     };
 
-    // Compute intersection for mutual and remove these from incoming/outgoing
+    // Compute intersection for mutual and remove these from incoming/outgoing if necessary
     if (groupByDirection) {
         for (var e in outgoing) {
             if (e in incoming) {
@@ -593,6 +598,7 @@ function nodeActive(a) {
     sigInst.active = a;
     window.location.hash = b.label;
 }
+
 
 
 
