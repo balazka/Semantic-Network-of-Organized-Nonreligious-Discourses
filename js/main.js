@@ -594,20 +594,37 @@ function showCluster(a) {
     if (b && 0 < b.length) {
         showGroups(!1);
         sigInst.detail = !0;
-        b.sort();
+        b.sort(); // Original sorting by ID
         sigInst.iterEdges(function (a) {
             a.hidden = !1;
             a.attr.lineWidth = !1;
-            a.attr.color = !1
+            a.attr.color = !1;
         });
         sigInst.iterNodes(function (a) {
-            a.hidden = !0
+            a.hidden = !0;
         });
-        for (var f = [], e = [], c = 0, g = b.length; c < g; c++) {
-            var d = sigInst._core.graph.nodesIndex[b[c]];
-            !0 == d.hidden && (e.push(b[c]), d.hidden = !1, d.attr.lineWidth = !1, d.attr.color = d.color, f.push('<li class="membership"><a href="#'+d.label+'" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + d.id + "'])\" onclick=\"nodeActive('" + d.id + '\')" onmouseout="sigInst.refresh()">' + d.label + "</a></li>"))
+        // Create a list of nodes with sorting by label
+        var nodes = [];
+        for (var i = 0; i < b.length; i++) {
+            var node = sigInst._core.graph.nodesIndex[b[i]];
+            if (!node.hidden) continue;
+            nodes.push({
+                id: node.id,
+                label: node.label,
+                color: node.color
+            });
         }
-        sigInst.clusters[a] = e;
+        // Sort nodes alphabetically by label
+        nodes.sort(function(a, b) {
+            return a.label.localeCompare(b.label);
+        });
+        // Build the list of HTML items
+        var f = [];
+        for (var j = 0; j < nodes.length; j++) {
+            var n = nodes[j];
+            f.push('<li class="membership"><a href="#' + n.label + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + n.id + "'])\" onclick=\"nodeActive('" + n.id + '\')" onmouseout="sigInst.refresh()">' + n.label + '</a></li>');
+        }
+        sigInst.clusters[a] = nodes.map(function(node) { return node.id; });
         sigInst.draw(2, 2, 2, 2);
         $GP.info_name.html("<b>" + a + "</b>");
         $GP.info_data.hide();
@@ -615,10 +632,11 @@ function showCluster(a) {
         $GP.info_link.find("ul").html(f.join(""));
         $GP.info.animate({width:'show'},350);
         $GP.search.clean();
-		$GP.cluster.hide();
-        return !0
+        $GP.cluster.hide();
+        return !0;
     }
-    return !1
+    return !1;
 }
+
 
 
