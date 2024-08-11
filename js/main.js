@@ -653,6 +653,15 @@ function showCluster(a) {
     return false;
 }
 
+function selectNode(nodeElement) {
+    // Remove the selected class from any previously selected node
+    document.querySelectorAll('#mainpanel .node.selected').forEach(function(node) {
+        node.classList.remove('selected');
+    });
+    
+    // Add the selected class to the currently selected node
+    nodeElement.classList.add('selected');
+}
 
 
 
