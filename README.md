@@ -1,16 +1,15 @@
 # Semantic Network of Organized Nonreligious Discourses
 
-This page and the network visualization are currently work in progress
+## 1. Theoretical background
 
-## Theoretical background
 
-## More about this visualization
+## 2. More about this visualization
 
-#### Data and methods
+#### 2.1. Data and methods
 
-#### How to navigate the network
+#### 2.2. How to navigate the network
 
-## Changelog
+## 3. Changelog
 This section covers the differences between the versions uploaded to Zenodo. The visualization is currently not available on Zenodo.
 
-## References
+## 4. References
