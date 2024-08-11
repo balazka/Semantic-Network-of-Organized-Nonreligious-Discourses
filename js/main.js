@@ -589,54 +589,71 @@ function nodeActive(a) {
     window.location.hash = b.label;
 }
 
-function showCluster(a) {
-    var b = sigInst.clusters[a];
-    if (b && 0 < b.length) {
-        showGroups(!1);
-        sigInst.detail = !0;
-        b.sort(); // Original sorting by ID
-        sigInst.iterEdges(function (a) {
-            a.hidden = !1;
-            a.attr.lineWidth = !1;
-            a.attr.color = !1;
+function showCluster(clusterName) {
+    var nodesInCluster = sigInst.clusters[clusterName];
+    if (nodesInCluster && nodesInCluster.length > 0) {
+        showGroups(false); // Hide group list
+        sigInst.detail = true;
+
+        // First, reset all node visibility
+        sigInst.iterNodes(function (node) {
+            node.hidden = false; // Make all nodes visible
         });
-        sigInst.iterNodes(function (a) {
-            a.hidden = !0;
+
+        // Hide edges and nodes that are not in the selected cluster
+        sigInst.iterEdges(function (edge) {
+            edge.hidden = false; // Show all edges
+            edge.attr.lineWidth = false;
+            edge.attr.color = false;
         });
-        // Create a list of nodes with sorting by label
-        var nodes = [];
-        for (var i = 0; i < b.length; i++) {
-            var node = sigInst._core.graph.nodesIndex[b[i]];
-            if (!node.hidden) continue;
-            nodes.push({
-                id: node.id,
-                label: node.label,
-                color: node.color
-            });
+
+        // Hide nodes that are not part of the selected cluster
+        var nodesToShow = [];
+        var nodesToHide = [];
+        for (var i = 0; i < nodesInCluster.length; i++) {
+            var nodeId = nodesInCluster[i];
+            var node = sigInst._core.graph.nodesIndex[nodeId];
+            if (node.hidden) {
+                node.hidden = false; // Show nodes in the cluster
+                nodesToShow.push(nodeId);
+            }
         }
-        // Sort nodes alphabetically by label
-        nodes.sort(function(a, b) {
-            return a.label.localeCompare(b.label);
+
+        // Hide nodes not in the cluster
+        sigInst.iterNodes(function (node) {
+            if (!nodesToShow.includes(node.id)) {
+                node.hidden = true;
+                nodesToHide.push(node.id);
+            }
         });
-        // Build the list of HTML items
-        var f = [];
-        for (var j = 0; j < nodes.length; j++) {
-            var n = nodes[j];
-            f.push('<li class="membership"><a href="#' + n.label + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + n.id + "'])\" onclick=\"nodeActive('" + n.id + '\')" onmouseout="sigInst.refresh()">' + n.label + '</a></li>');
-        }
-        sigInst.clusters[a] = nodes.map(function(node) { return node.id; });
+
+        // Update cluster data with the nodes that are shown
+        sigInst.clusters[clusterName] = nodesToHide;
+
+        // Draw the updated graph
         sigInst.draw(2, 2, 2, 2);
-        $GP.info_name.html("<b>" + a + "</b>");
+
+        // Update the UI with the cluster information
+        $GP.info_name.html("<b>" + clusterName + "</b>");
         $GP.info_data.hide();
         $GP.info_p.html("Group Members:");
-        $GP.info_link.find("ul").html(f.join(""));
-        $GP.info.animate({width:'show'},350);
+
+        // Build the list of nodes
+        var nodeListHtml = [];
+        for (var j = 0; j < nodesInCluster.length; j++) {
+            var node = sigInst._core.graph.nodesIndex[nodesInCluster[j]];
+            nodeListHtml.push('<li class="membership"><a href="#' + node.label + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + node.id + "'])\" onclick=\"nodeActive('" + node.id + '\')" onmouseout="sigInst.refresh()">' + node.label + '</a></li>');
+        }
+
+        $GP.info_link.find("ul").html(nodeListHtml.join(""));
+        $GP.info.animate({width: 'show'}, 350);
         $GP.search.clean();
         $GP.cluster.hide();
-        return !0;
+        return true;
     }
-    return !1;
+    return false;
 }
+
 
 
 
