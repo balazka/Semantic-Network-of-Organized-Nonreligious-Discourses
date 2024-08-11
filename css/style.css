@@ -606,9 +606,4 @@ display: none;
     width: auto;              /* Ensure width scales proportionally */
 }
 
-/* Add a new CSS rule for the selected node */
-#mainpanel .node.selected {
-    border: 2px solid #f00; /* Red border to indicate selection */
-    background-color: rgba(255, 255, 0, 0.5); /* Light yellow background */
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); /* Optional: shadow effect */
-}
+
