@@ -473,6 +473,7 @@ function nodeActive(a) {
     if (groupByDirection) {
 		//SAH - Compute intersection for mutual and remove these from incoming/outgoing
 		for (e in outgoing) {
+			//name=outgoing[e];
 			if (e in incoming) {
 				mutual[e]=outgoing[e];
 				delete incoming[e];
@@ -484,47 +485,55 @@ function nodeActive(a) {
     var createList=function(c) {
         var f = [];
     	var e = [],
-        g;
-        
-        // Sorting the connections alphabetically by name before generating the list
-        var sortedConnections = Object.keys(c).sort(function(a, b) {
-            return c[a].name.toLowerCase().localeCompare(c[b].name.toLowerCase());
-        });
-        
-        // Loop through sorted connections to build the list
-        for (var i = 0; i < sortedConnections.length; i++) {
-            g = sortedConnections[i];
-            var d = sigInst._core.graph.nodesIndex[g];
-            d.hidden = !1;
-            d.attr.lineWidth = !1;
-            d.attr.color = c[g].colour;
-            a != g && e.push({
-                id: g,
-                name: d.label,
-                group: (c[g].name)? c[g].name:"",
-                colour: c[g].colour
-            });
-        }
-        
-        e.sort(function (a, b) {
-            var c = a.group.toLowerCase(),
-                d = b.group.toLowerCase(),
-                e = a.name.toLowerCase(),
-                f = b.name.toLowerCase();
-            return c != d ? c < d ? -1 : c > d ? 1 : 0 : e < f ? -1 : e > f ? 1 : 0
-        });
-        d = "";
+      	 	 //c = sigInst.neighbors,
+       		 g;
+    for (g in c) {
+        var d = sigInst._core.graph.nodesIndex[g];
+        d.hidden = !1;
+        d.attr.lineWidth = !1;
+        d.attr.color = c[g].colour;
+        a != g && e.push({
+            id: g,
+            name: d.label,
+            group: (c[g].name)? c[g].name:"",
+            colour: c[g].colour
+        })
+    }
+    e.sort(function (a, b) {
+        var c = a.group.toLowerCase(),
+            d = b.group.toLowerCase(),
+            e = a.name.toLowerCase(),
+            f = b.name.toLowerCase();
+        return c != d ? c < d ? -1 : c > d ? 1 : 0 : e < f ? -1 : e > f ? 1 : 0
+    });
+    d = "";
 		for (g in e) {
 			c = e[g];
+			/*if (c.group != d) {
+				d = c.group;
+				f.push('<li class="cf" rel="' + c.color + '"><div class=""></div><div class="">' + d + "</div></li>");
+			}*/
 			f.push('<li class="membership"><a href="#' + c.name + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + c.id + '\'])\" onclick=\"nodeActive(\'' + c.id + '\')" onmouseout="sigInst.refresh()">' + c.name + "</a></li>");
 		}
 		return f;
 	}
 	
+	/*console.log("mutual:");
+	console.log(mutual);
+	console.log("incoming:");
+	console.log(incoming);
+	console.log("outgoing:");
+	console.log(outgoing);*/
+	
+	
 	var f=[];
+	
+	//console.log("neighbors:");
+	//console.log(sigInst.neighbors);
+
 	if (groupByDirection) {
 		size=Object.size(mutual);
-		f.push("<h2>Mutual (" + size + ")</h2>");
+		f.push("<h2>Mututal (" + size + ")</h2>");
 		(size>0)? f=f.concat(createList(mutual)) : f.push("No mutual links<br>");
 		size=Object.size(incoming);
 		f.push("<h2>Incoming (" + size + ")</h2>");
@@ -535,7 +544,7 @@ function nodeActive(a) {
 	} else {
 		f=f.concat(createList(sigInst.neighbors));
 	}
-	
+	//b is object of active node -- SAH
     b.hidden = !1;
     b.attr.color = b.color;
     b.attr.lineWidth = 6;
@@ -562,18 +571,21 @@ function nodeActive(a) {
 			if (attr!=image_attribute) {
                 h = '<span><strong>' + attr + ':</strong> ' + d + '</span><br/>'
 			}
-            e.push(h);
+            //temp_array.push(f.attributes[g].attr);
+            e.push(h)
         }
 
         if (image_attribute) {
+        	//image_index = jQuery.inArray(image_attribute, temp_array);
         	$GP.info_name.html("<div><img src=" + f.attributes[image_attribute] + " style=\"vertical-align:middle\" /> <span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
         } else {
         	$GP.info_name.html("<div><span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
         }
-        $GP.info_data.html(e.join("<br/>"));
+        // Image field for attribute pane
+        $GP.info_data.html(e.join("<br/>"))
     }
     $GP.info_data.show();
-    $GP.info_p.html("Connections:");
+    $GP.info_p.html("High frequency connections:");
     $GP.info.animate({width:'show'},350);
 	$GP.info_donnees.hide();
 	$GP.info_donnees.show();
