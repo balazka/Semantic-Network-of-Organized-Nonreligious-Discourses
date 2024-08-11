@@ -440,34 +440,45 @@ function nodeActive(a) {
     if (config.informationPanel.groupByEdgeDirection && config.informationPanel.groupByEdgeDirection === true) {
         groupByDirection = true;
     }
-    
+
     sigInst.neighbors = {};
     sigInst.detail = true;
     var b = sigInst._core.graph.nodesIndex[a];
     showGroups(false);
-    
+
     var outgoing = {}, incoming = {}, mutual = {}; // SAH
 
-    sigInst.iterEdges(function (b) {
-        b.attr.lineWidth = false;
-        b.hidden = true;
-
-        var n = {
-            name: b.label,
-            colour: b.color
-        };
-
-        if (a === b.source) outgoing[b.target] = n; // SAH
-        else if (a === b.target) incoming[b.source] = n; // SAH
-
-        if (a === b.source || a === b.target) {
-            sigInst.neighbors[a === b.target ? b.source : b.target] = n;
-        }
-
-        b.hidden = false;
-        b.attr.color = "rgba(0, 0, 0, 1)";
+    // Hide all edges initially
+    sigInst.iterEdges(function (edge) {
+        edge.attr.lineWidth = false;
+        edge.hidden = true;
     });
 
+    // Process edges to show only those connected to the active node
+    sigInst.iterEdges(function (edge) {
+        var n = {
+            name: edge.label,
+            colour: edge.color
+        };
+
+        if (a === edge.source) outgoing[edge.target] = n; // SAH
+        else if (a === edge.target) incoming[edge.source] = n; // SAH
+
+        if (a === edge.source || a === edge.target) {
+            sigInst.neighbors[a === edge.target ? edge.source : edge.target] = n;
+            edge.hidden = false; // Show edge connected to active node
+            edge.attr.color = "rgba(0, 0, 0, 1)"; // Set color
+        }
+    });
+
+    // Hide all nodes initially
+    sigInst.iterNodes(function (node) {
+        node.hidden = true;
+        node.attr.lineWidth = false;
+        node.attr.color = node.color;
+    });
+
+    // Show nodes connected to the active node
     var createList = function (c) {
         var f = [];
         var e = [];
@@ -516,57 +527,58 @@ function nodeActive(a) {
     }
 
     var f = [];
-    
+
     if (groupByDirection) {
-        var size = Object.size(mutual);
+        var size = Object.keys(mutual).length;
         f.push("<h2>Mutual (" + size + ")</h2>");
         f = (size > 0) ? f.concat(createList(mutual)) : f.push("No mutual links<br>");
 
-        size = Object.size(incoming);
+        size = Object.keys(incoming).length;
         f.push("<h2>Incoming (" + size + ")</h2>");
         f = (size > 0) ? f.concat(createList(incoming)) : f.push("No incoming links<br>");
 
-        size = Object.size(outgoing);
+        size = Object.keys(outgoing).length;
         f.push("<h2>Outgoing (" + size + ")</h2>");
         f = (size > 0) ? f.concat(createList(outgoing)) : f.push("No outgoing links<br>");
     } else {
         f = f.concat(createList(sigInst.neighbors));
     }
 
-    // b is the object of the active node -- SAH
+    // Highlight the active node
     b.hidden = false;
-    b.attr.color = b.color;
-    b.attr.lineWidth = 6;
-    b.attr.strokeStyle = "#000000";
-    sigInst.draw(2, 2, 2, 2);
+    b.attr.color = "#FF0000"; // Set color to red for highlighting
+    b.attr.size = 10; // Increase size for visibility
+    b.attr.lineWidth = 6; // Increase line width for visibility
+    b.attr.strokeStyle = "#000000"; // Set border color to black
 
+    // Redraw the graph to apply changes
+    sigInst.refresh();
+
+    // Update the information panel
     $GP.info_link.find("ul").html(f.join(""));
     $GP.info_link.find("li").each(function () {
         var a = $(this),
             b = a.attr("rel");
     });
 
-    var f = b.attr;
-    if (f.attributes) {
-        var image_attribute = false;
+    var attributes = b.attr;
+    if (attributes) {
+        var imageAttribute = false;
         if (config.informationPanel.imageAttribute) {
-            image_attribute = config.informationPanel.imageAttribute;
+            imageAttribute = config.informationPanel.imageAttribute;
         }
         var e = [];
-        var temp_array = [];
-        var g = 0;
-
-        for (var attr in f.attributes) {
-            var d = f.attributes[attr];
+        for (var attr in attributes.attributes) {
+            var d = attributes.attributes[attr];
             var h = "";
-            if (attr !== image_attribute) {
+            if (attr !== imageAttribute) {
                 h = '<span><strong>' + attr + ':</strong> ' + d + '</span><br/>';
             }
             e.push(h);
         }
 
-        if (image_attribute) {
-            $GP.info_name.html("<div><img src=" + f.attributes[image_attribute] + " style=\"vertical-align:middle\" /> <span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
+        if (imageAttribute) {
+            $GP.info_name.html("<div><img src=" + attributes.attributes[imageAttribute] + " style=\"vertical-align:middle\" /> <span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
         } else {
             $GP.info_name.html("<div><span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
         }
@@ -583,6 +595,7 @@ function nodeActive(a) {
     sigInst.active = a;
     window.location.hash = b.label;
 }
+
 
 
 function showCluster(a) {
