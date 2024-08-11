@@ -439,78 +439,148 @@ function nodeNormal() {
 
 
 
-
 function nodeActive(a) {
-    var groupByDirection = false;
-    if (config.informationPanel.groupByEdgeDirection && config.informationPanel.groupByEdgeDirection === true) {
-        groupByDirection = true;
-    }
 
+	var groupByDirection=false;
+	if (config.informationPanel.groupByEdgeDirection && config.informationPanel.groupByEdgeDirection==true)	groupByDirection=true;
+	
     sigInst.neighbors = {};
-    sigInst.detail = true;
+    sigInst.detail = !0;
     var b = sigInst._core.graph.nodesIndex[a];
+    showGroups(!1);
+	var outgoing={},incoming={},mutual={};//SAH
+    sigInst.iterEdges(function (b) {
+        b.attr.lineWidth = !1;
+        b.hidden = !0;
+        
+        n={
+            name: b.label,
+            colour: b.color
+        };
+        
+   	   if (a==b.source) outgoing[b.target]=n;		//SAH
+	   else if (a==b.target) incoming[b.source]=n;		//SAH
+       if (a == b.source || a == b.target) sigInst.neighbors[a == b.target ? b.source : b.target] = n;
+       b.hidden = !1, b.attr.color = "rgba(0, 0, 0, 1)";
+    });
+    var f = [];
+    sigInst.iterNodes(function (a) {
+        a.hidden = !0;
+        a.attr.lineWidth = !1;
+        a.attr.color = a.color
+    });
     
-    // Initially hide all nodes and edges
-    sigInst.iterNodes(function (node) {
-        node.hidden = true;
-        node.attr.lineWidth = false;
-        node.attr.color = node.color; // Preserve original color
-    });
-
-    sigInst.iterEdges(function (edge) {
-        edge.hidden = true;
-        edge.attr.lineWidth = false;
-    });
-
-    // Show the entire ego-network of the selected node
-    function showEgoNetwork(nodeId) {
-        var nodesToShow = new Set();
-        var edgesToShow = new Set();
-
-        sigInst.iterEdges(function (edge) {
-            if (nodeId === edge.source || nodeId === edge.target) {
-                edgesToShow.add(edge.id);
-                nodesToShow.add(edge.source);
-                nodesToShow.add(edge.target);
-            }
-        });
-
-        sigInst.iterNodes(function (node) {
-            if (nodesToShow.has(node.id)) {
-                node.hidden = false;
-                node.attr.lineWidth = 1;
-                node.attr.color = node.color; // Optionally change color
-            }
-        });
-
-        sigInst.iterEdges(function (edge) {
-            if (edgesToShow.has(edge.id)) {
-                edge.hidden = false;
-                edge.attr.lineWidth = 1;
-                edge.attr.color = "rgba(0, 0, 0, 1)"; // Optionally change color
-            }
-        });
+    if (groupByDirection) {
+		//SAH - Compute intersection for mutual and remove these from incoming/outgoing
+		for (e in outgoing) {
+			if (e in incoming) {
+				mutual[e]=outgoing[e];
+				delete incoming[e];
+				delete outgoing[e];
+			}
+		}
     }
-
-    // Show the ego-network of the selected node
-    showEgoNetwork(a);
-
-    // Highlight the active node
-    b.hidden = false;
-    b.attr.color = "#FF0000"; // Highlight color
-    b.attr.size = 10; // Increase size for visibility
-    b.attr.lineWidth = 6; // Increase line width for visibility
-    b.attr.strokeStyle = "#000000"; // Set border color
-
-    // Refresh the graph to apply visibility changes
-    sigInst.refresh();
-
-    // Update the information panel
-    var createList = function (c) {
+    
+    var createList=function(c) {
         var f = [];
-        var e = [];
+    	var e = [],
+        g;
+        
+        // Sorting the connections alphabetically by name before generating the list
+        var sortedConnections = Object.keys(c).sort(function(a, b) {
+            return c[a].name.toLowerCase().localeCompare(c[b].name.toLowerCase());
+        });
+        
+        // Loop through sorted connections to build the list
+        for (var i = 0; i < sortedConnections.length; i++) {
+            g = sortedConnections[i];
+            var d = sigInst._core.graph.nodesIndex[g];
+            d.hidden = !1;
+            d.attr.lineWidth = !1;
+            d.attr.color = c[g].colour;
+            a != g && e.push({
+                id: g,
+                name: d.label,
+                group: (c[g].name)? c[g].name:"",
+                colour: c[g].colour
+            });
+        }
+        
+        e.sort(function (a, b) {
+            var c = a.group.toLowerCase(),
+                d = b.group.toLowerCase(),
+                e = a.name.toLowerCase(),
+                f = b.name.toLowerCase();
+            return c != d ? c < d ? -1 : c > d ? 1 : 0 : e < f ? -1 : e > f ? 1 : 0
+        });
+        d = "";
+		for (g in e) {
+			c = e[g];
+			f.push('<li class="membership"><a href="#' + c.name + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + c.id + '\'])\" onclick=\"nodeActive(\'' + c.id + '\')" onmouseout="sigInst.refresh()">' + c.name + "</a></li>");
+		}
+		return f;
+	}
+	
+	var f=[];
+	if (groupByDirection) {
+		size=Object.size(mutual);
+		f.push("<h2>Mutual (" + size + ")</h2>");
+		(size>0)? f=f.concat(createList(mutual)) : f.push("No mutual links<br>");
+		size=Object.size(incoming);
+		f.push("<h2>Incoming (" + size + ")</h2>");
+		(size>0)? f=f.concat(createList(incoming)) : f.push("No incoming links<br>");
+		size=Object.size(outgoing);
+		f.push("<h2>Outgoing (" + size + ")</h2>");
+		(size>0)? f=f.concat(createList(outgoing)) : f.push("No outgoing links<br>");
+	} else {
+		f=f.concat(createList(sigInst.neighbors));
+	}
+	
+    b.hidden = !1;
+    b.attr.color = b.color;
+    b.attr.lineWidth = 6;
+    b.attr.strokeStyle = "#000000";
+    sigInst.draw(2, 2, 2, 2);
 
-        for (var g in c) {
+    $GP.info_link.find("ul").html(f.join(""));
+    $GP.info_link.find("li").each(function () {
+        var a = $(this),
+            b = a.attr("rel");
+    });
+    f = b.attr;
+    if (f.attributes) {
+  		var image_attribute = false;
+  		if (config.informationPanel.imageAttribute) {
+  			image_attribute=config.informationPanel.imageAttribute;
+  		}
+        e = [];
+        temp_array = [];
+        g = 0;
+        for (var attr in f.attributes) {
+            var d = f.attributes[attr],
+                h = "";
+			if (attr!=image_attribute) {
+                h = '<span><strong>' + attr + ':</strong> ' + d + '</span><br/>'
+			}
+            e.push(h);
+        }
+
+        if (image_attribute) {
+        	$GP.info_name.html("<div><img src=" + f.attributes[image_attribute] + " style=\"vertical-align:middle\" /> <span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
+        } else {
+        	$GP.info_name.html("<div><span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
+        }
+        $GP.info_data.html(e.join("<br/>"));
+    }
+    $GP.info_data.show();
+    $GP.info_p.html("Connections:");
+    $GP.info.animate({width:'show'},350);
+	$GP.info_donnees.hide();
+	$GP.info_donnees.show();
+    sigInst.active = a;
+    window.location.hash = b.label;
+}
+
 
 
 
