@@ -589,70 +589,70 @@ function nodeActive(a) {
     window.location.hash = b.label;
 }
 
-function showCluster(clusterName) {
-    var nodesInCluster = sigInst.clusters[clusterName];
-    if (nodesInCluster && nodesInCluster.length > 0) {
-        showGroups(false); // Hide group list
+function showCluster(a) {
+    var nodeIds = sigInst.clusters[a]; // Array of node IDs in the cluster
+    if (nodeIds && nodeIds.length > 0) {
+        showGroups(false);
         sigInst.detail = true;
 
-        // First, reset all node visibility
-        sigInst.iterNodes(function (node) {
-            node.hidden = false; // Make all nodes visible
+        // Sort node IDs based on their labels
+        nodeIds.sort(function(id1, id2) {
+            var label1 = sigInst._core.graph.nodesIndex[id1].label;
+            var label2 = sigInst._core.graph.nodesIndex[id2].label;
+            return label1.localeCompare(label2);
         });
 
-        // Hide edges and nodes that are not in the selected cluster
-        sigInst.iterEdges(function (edge) {
-            edge.hidden = false; // Show all edges
+        // Show all edges
+        sigInst.iterEdges(function(edge) {
+            edge.hidden = false;
             edge.attr.lineWidth = false;
             edge.attr.color = false;
         });
 
-        // Hide nodes that are not part of the selected cluster
-        var nodesToShow = [];
-        var nodesToHide = [];
-        for (var i = 0; i < nodesInCluster.length; i++) {
-            var nodeId = nodesInCluster[i];
-            var node = sigInst._core.graph.nodesIndex[nodeId];
-            if (node.hidden) {
-                node.hidden = false; // Show nodes in the cluster
-                nodesToShow.push(nodeId);
-            }
-        }
-
-        // Hide nodes not in the cluster
-        sigInst.iterNodes(function (node) {
-            if (!nodesToShow.includes(node.id)) {
-                node.hidden = true;
-                nodesToHide.push(node.id);
-            }
+        // Hide all nodes first
+        sigInst.iterNodes(function(node) {
+            node.hidden = true;
         });
 
-        // Update cluster data with the nodes that are shown
-        sigInst.clusters[clusterName] = nodesToHide;
+        var htmlList = []; // For storing HTML list items
+        var visibleNodeIds = []; // For storing IDs of nodes that will be shown
 
-        // Draw the updated graph
-        sigInst.draw(2, 2, 2, 2);
-
-        // Update the UI with the cluster information
-        $GP.info_name.html("<b>" + clusterName + "</b>");
-        $GP.info_data.hide();
-        $GP.info_p.html("Group Members:");
-
-        // Build the list of nodes
-        var nodeListHtml = [];
-        for (var j = 0; j < nodesInCluster.length; j++) {
-            var node = sigInst._core.graph.nodesIndex[nodesInCluster[j]];
-            nodeListHtml.push('<li class="membership"><a href="#' + node.label + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + node.id + "'])\" onclick=\"nodeActive('" + node.id + '\')" onmouseout="sigInst.refresh()">' + node.label + '</a></li>');
+        // Iterate over sorted node IDs and update visibility
+        for (var i = 0; i < nodeIds.length; i++) {
+            var node = sigInst._core.graph.nodesIndex[nodeIds[i]];
+            if (node.hidden) {
+                visibleNodeIds.push(nodeIds[i]); // Collect node IDs to show
+                node.hidden = false;
+                node.attr.lineWidth = false;
+                node.attr.color = node.color;
+                // Create HTML list item
+                htmlList.push('<li class="membership"><a href="#' + node.label + 
+                    '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + 
+                    node.id + '"])\" onclick=\"nodeActive(\'' + node.id + 
+                    '\')" onmouseout="sigInst.refresh()">' + node.label + "</a></li>");
+            }
         }
 
-        $GP.info_link.find("ul").html(nodeListHtml.join(""));
-        $GP.info.animate({width: 'show'}, 350);
+        // Update cluster data
+        sigInst.clusters[a] = visibleNodeIds;
+        
+        // Redraw the network visualization
+        sigInst.draw(2, 2, 2, 2); // Ensure this is the correct way to trigger a redraw
+
+        // Update UI elements
+        $GP.info_name.html("<b>" + a + "</b>");
+        $GP.info_data.hide();
+        $GP.info_p.html("Group Members:");
+        $GP.info_link.find("ul").html(htmlList.join(""));
+        $GP.info.animate({width:'show'}, 350);
         $GP.search.clean();
         $GP.cluster.hide();
+        
         return true;
     }
     return false;
 }
+
 
 
 
