@@ -612,4 +612,19 @@ display: none;
     width: auto;              /* Ensure width scales proportionally */
 }
 
+/* CSS for DOI section */
+#doi {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #333;
+}
+
+#doi a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+#doi a:hover {
+  text-decoration: underline;
+}
 
