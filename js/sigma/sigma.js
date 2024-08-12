@@ -712,28 +712,44 @@ sigma.classes.EventDispatcher = function () {
         var n = f,
             y = k;
         this.currentBGIndex = this.currentLabelIndex = this.currentBGIndex = this.currentNodeIndex = this.currentEdgeIndex = 0;
-        this.task_drawLabel = function () {
-            for (var b = a.nodes.length, c = 0; c++ < j.p.labelsSpeed && j.currentLabelIndex < b;) if (j.isOnScreen(a.nodes[j.currentLabelIndex])) {
-                var d = a.nodes[j.currentLabelIndex++],
-                    f = h;
-                if (d.displaySize >= j.p.labelThreshold) {
-                    var g = "fixed" == j.p.labelSize ? j.p.defaultLabelSize : j.p.labelSizeRatio * d.displaySize;
-                    f.font = (j.p.hoverFontStyle || j.p.fontStyle || "") + " " + g + "px " + (j.p.hoverFont || j.p.font || "");
-                    var i = Math.round,
-                        m = i(d.displayX + 10),
-                        l = i(d.displayY + g / 2 - 2),
-                        k = i(f.measureText(d.label).width + 6),
-                        v = i(g + 4);
-                    i(g / 2 + 2);
-                    f.font = j.p.fontStyle + g + "px " + j.p.font;
-                    f.fillStyle = "#258EA4";
-                    f.fillRect(m, l - v + 3, k, v);
-                    f.fillStyle = "#fff";
-                    f.fillText(d.label, m + 4, l)
-                }
-            } else j.currentLabelIndex++;
-            return j.currentLabelIndex < b
-        };
+	this.task_drawLabel = function () {
+	    // This set will keep track of used positions to handle overlaps
+	    const usedPositions = new Set();
+	
+	    for (var b = a.nodes.length, c = 0; c++ < j.p.labelsSpeed && j.currentLabelIndex < b;) {
+	        if (j.isOnScreen(a.nodes[j.currentLabelIndex])) {
+	            var d = a.nodes[j.currentLabelIndex++],
+	                f = h;
+	            if (d.displaySize >= j.p.labelThreshold) {
+	                var g = "fixed" == j.p.labelSize ? j.p.defaultLabelSize : j.p.labelSizeRatio * d.displaySize;
+	                f.font = (j.p.hoverFontStyle || j.p.fontStyle || "") + " " + g + "px " + (j.p.hoverFont || j.p.font || "");
+	                
+	                // Calculate label position
+	                var i = Math.round,
+	                    m = i(d.displayX + 10),
+	                    l = i(d.displayY + g / 2 - 2),
+	                    k = i(f.measureText(d.label).width + 6),
+	                    v = i(g + 4);
+	
+	                // Check for overlaps
+	                let posKey = `${m},${l}`;
+	                while (usedPositions.has(posKey)) {
+	                    l += v + 10; // Adjust vertical position if overlap is detected
+	                    posKey = `${m},${l}`;
+	                }
+	                usedPositions.add(posKey);
+	                
+	                // Draw the label
+	                f.font = j.p.fontStyle + g + "px " + j.p.font;
+	                f.fillStyle = "#258EA4";
+	                f.fillRect(m, l - v + 3, k, v);
+	                f.fillStyle = "#fff";
+	                f.fillText(d.label, m + 4, l);
+	            }
+	        } else j.currentLabelIndex++;
+	    }
+	    return j.currentLabelIndex < b;
+	}; 
         this.task_drawEdge = function () {
             for (var b = a.edges.length, c, d, f = 0, h; f++ < j.p.edgesSpeed && j.currentEdgeIndex < b;) if (h = a.edges[j.currentEdgeIndex], c = h.source, d = h.target, h.hidden || c.hidden || d.hidden || !j.isOnScreen(c) && !j.isOnScreen(d)) j.currentEdgeIndex++;
             else {
