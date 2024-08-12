@@ -441,6 +441,12 @@ background-position: -11px -119px;
 background-position: -51px -122px;
 }
 
+#mainpanel .topic {
+
+background-image:url('../images/Topic_icon.png');
+
+}
+
 #mainpanel .colours {
 
 background-image:url('../images/rainbow.png');
