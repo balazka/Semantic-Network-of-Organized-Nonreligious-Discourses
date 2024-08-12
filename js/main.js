@@ -454,6 +454,10 @@ function nodeActive(a) {
     sigInst.iterEdges(function (b) {
         b.attr.lineWidth = !1;
         b.hidden = !0;
+
+	// Add a black border
+	b.attr.lineWidth = 8;             // Thickness of the border
+	b.attr.strokeStyle = "#000000";   // Black color for the border
         
         var n = {
             name: b.label,
