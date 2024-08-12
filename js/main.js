@@ -440,41 +440,6 @@ function nodeNormal() {
 
 
 
-var createAlphabeticalList = function (nodes) {
-    var listItems = [];
-    var sortedNodes = [];
-
-    for (var key in nodes) {
-        var node = sigInst._core.graph.nodesIndex[key];
-        node.hidden = false;
-        node.attr.lineWidth = false;
-        node.attr.color = nodes[key].colour;
-
-        if (a != key) {
-            sortedNodes.push({
-                id: key,
-                name: node.label,
-                colour: nodes[key].colour
-            });
-        }
-    }
-
-    // Sort nodes alphabetically by their labels (names)
-    sortedNodes.sort(function (n1, n2) {
-        var name1 = n1.name.toLowerCase(),
-            name2 = n2.name.toLowerCase();
-
-        return name1 < name2 ? -1 : name1 > name2 ? 1 : 0;
-    });
-
-    // Generate HTML list items
-    sortedNodes.forEach(function (node) {
-        listItems.push('<li class="membership"><a href="#' + node.name + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + node.id + '\'])" onclick="nodeActive(\'' + node.id + '\')" onmouseout="sigInst.refresh()">' + node.name + "</a></li>");
-    });
-
-    return listItems;
-};
-
 
 
 function nodeActive(a) {
