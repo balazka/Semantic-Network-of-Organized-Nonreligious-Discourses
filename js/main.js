@@ -435,13 +435,6 @@ function nodeNormal() {
     }), sigInst.draw(2, 2, 2, 2), sigInst.neighbors = {}, sigInst.active = !1, $GP.calculating = !1, window.location.hash = "")
 }
 
-
-
-
-
-
-
-
 function nodeActive(a) {
     var groupByDirection = false;
     if (config.informationPanel.groupByEdgeDirection && config.informationPanel.groupByEdgeDirection == true) groupByDirection = true;
@@ -454,10 +447,6 @@ function nodeActive(a) {
     sigInst.iterEdges(function (b) {
         b.attr.lineWidth = !1;
         b.hidden = !0;
-
-	// Add a black border
-	b.attr.lineWidth = 8;             // Thickness of the border
-	b.attr.strokeStyle = "#000000";   // Black color for the border
         
         var n = {
             name: b.label,
@@ -584,14 +573,6 @@ function nodeActive(a) {
     sigInst.active = a;
     window.location.hash = b.label;
 }
-
-
-
-
-
-
-
-
 
 function showCluster(a) {
     var nodeIds = sigInst.clusters[a]; // Array of node IDs in the cluster
