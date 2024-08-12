@@ -714,10 +714,9 @@ sigma.classes.EventDispatcher = function () {
         this.currentBGIndex = this.currentLabelIndex = this.currentBGIndex = this.currentNodeIndex = this.currentEdgeIndex = 0;
 	this.task_drawLabel = function () {
 	    const labels = [];
-	    const gridSize = 50; // Adjust based on your label size and canvas dimensions
-	    const positionMap = new Map(); // To keep track of occupied grid cells
+	    const positionMap = new Map(); // To keep track of occupied positions
 	
-	    // First pass: Collect all label positions and dimensions
+	    // Collect label data based on zoom and visibility
 	    for (var b = a.nodes.length, c = 0; c++ < j.p.labelsSpeed && j.currentLabelIndex < b;) {
 	        if (j.isOnScreen(a.nodes[j.currentLabelIndex])) {
 	            var d = a.nodes[j.currentLabelIndex++],
@@ -732,62 +731,56 @@ sigma.classes.EventDispatcher = function () {
 	                    k = i(f.measureText(d.label).width + 6),
 	                    v = i(g + 4);
 	
-	                // Store label information for later processing
+	                // Store label data for processing
 	                labels.push({
 	                    x: m,
 	                    y: l,
 	                    width: k,
 	                    height: v,
-	                    label: d.label
+	                    label: d.label,
+	                    originalX: d.displayX,
+	                    originalY: d.displayY
 	                });
 	            }
 	        } else j.currentLabelIndex++;
 	    }
-	    
-	    // Second pass: Draw labels with grid-based positioning
+	
+	    // Sort labels by their Y position to handle overlaps better
+	    labels.sort((a, b) => a.y - b.y);
+	
+	    // Function to check overlap with existing labels
+	    function isOverlapping(x, y, width, height) {
+	        for (const pos of positionMap.values()) {
+	            const [px, py, pwidth, pheight] = pos;
+	            if (x < px + pwidth &&
+	                x + width > px &&
+	                y < py + pheight &&
+	                y + height > py) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
+	
+	    // Draw labels while avoiding overlaps
 	    for (const label of labels) {
 	        let { x, y, width, height } = label;
 	
-	        // Calculate grid cell coordinates
-	        const gridX = Math.floor(x / gridSize);
-	        const gridY = Math.floor(y / gridSize);
-	
-	        // Find a free grid cell
-	        let adjustedX = x;
-	        let adjustedY = y;
-	        let cellOccupied = true;
-	        while (cellOccupied) {
-	            cellOccupied = false;
-	            for (let dy = 0; dy < Math.ceil(height / gridSize); dy++) {
-	                for (let dx = 0; dx < Math.ceil(width / gridSize); dx++) {
-	                    const cellKey = `${gridX + dx}:${gridY + dy}`;
-	                    if (positionMap.has(cellKey)) {
-	                        cellOccupied = true;
-	                        break;
-	                    }
-	                }
-	                if (cellOccupied) break;
-	            }
-	            if (cellOccupied) {
-	                adjustedY += height; // Move label down by height if overlap detected
-	                gridY = Math.floor(adjustedY / gridSize);
-	            }
+	        // Adjust position if overlapping
+	        let adjustment = 0;
+	        while (isOverlapping(x, y + adjustment, width, height)) {
+	            adjustment += height; // Move label down
 	        }
 	
-	        // Draw the label
+	        // Draw label
 	        f.font = j.p.fontStyle + g + "px " + j.p.font;
 	        f.fillStyle = "#258EA4";
-	        f.fillRect(adjustedX, adjustedY - height + 3, width, height);
+	        f.fillRect(x, y + adjustment - height + 3, width, height);
 	        f.fillStyle = "#fff";
-	        f.fillText(label.label, adjustedX + 4, adjustedY);
+	        f.fillText(label.label, x + 4, y + adjustment);
 	
-	        // Mark grid cells as occupied
-	        for (let dy = 0; dy < Math.ceil(height / gridSize); dy++) {
-	            for (let dx = 0; dx < Math.ceil(width / gridSize); dx++) {
-	                const cellKey = `${gridX + dx}:${gridY + dy}`;
-	                positionMap.set(cellKey, true);
-	            }
-	        }
+	        // Mark position as occupied
+	        positionMap.set(label.label, [x, y + adjustment, width, height]);
 	    }
 	
 	    return j.currentLabelIndex < b;
