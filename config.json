@@ -15,7 +15,8 @@
   "legend": {
     "edgeLabel": "Connection",
     "colorLabel": "Modularity",
-    "nodeLabel": "Word"
+    "nodeLabel": "Word",
+    "topicLabel": "Topic"
   },
   "features": {
     "search": true,
