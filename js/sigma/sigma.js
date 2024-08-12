@@ -713,9 +713,11 @@ sigma.classes.EventDispatcher = function () {
             y = k;
         this.currentBGIndex = this.currentLabelIndex = this.currentBGIndex = this.currentNodeIndex = this.currentEdgeIndex = 0;
 	this.task_drawLabel = function () {
-	    // This set will keep track of used positions to handle overlaps
-	    const usedPositions = new Set();
+	    const labels = [];
+	    const gridSize = 50; // Adjust based on your label size and canvas dimensions
+	    const positionMap = new Map(); // To keep track of occupied grid cells
 	
+	    // First pass: Collect all label positions and dimensions
 	    for (var b = a.nodes.length, c = 0; c++ < j.p.labelsSpeed && j.currentLabelIndex < b;) {
 	        if (j.isOnScreen(a.nodes[j.currentLabelIndex])) {
 	            var d = a.nodes[j.currentLabelIndex++],
@@ -724,68 +726,72 @@ sigma.classes.EventDispatcher = function () {
 	                var g = "fixed" == j.p.labelSize ? j.p.defaultLabelSize : j.p.labelSizeRatio * d.displaySize;
 	                f.font = (j.p.hoverFontStyle || j.p.fontStyle || "") + " " + g + "px " + (j.p.hoverFont || j.p.font || "");
 	                
-	                // Calculate label position
 	                var i = Math.round,
 	                    m = i(d.displayX + 10),
 	                    l = i(d.displayY + g / 2 - 2),
 	                    k = i(f.measureText(d.label).width + 6),
 	                    v = i(g + 4);
 	
-	                // Check for overlaps
-	                let posKey = `${m},${l}`;
-	                while (usedPositions.has(posKey)) {
-	                    l += v + 10; // Adjust vertical position if overlap is detected
-	                    posKey = `${m},${l}`;
-	                }
-	                usedPositions.add(posKey);
-	                
-	                // Draw the label
-	                f.font = j.p.fontStyle + g + "px " + j.p.font;
-	                f.fillStyle = "#258EA4";
-	                f.fillRect(m, l - v + 3, k, v);
-	                f.fillStyle = "#fff";
-	                f.fillText(d.label, m + 4, l);
+	                // Store label information for later processing
+	                labels.push({
+	                    x: m,
+	                    y: l,
+	                    width: k,
+	                    height: v,
+	                    label: d.label
+	                });
 	            }
 	        } else j.currentLabelIndex++;
 	    }
+	    
+	    // Second pass: Draw labels with grid-based positioning
+	    for (const label of labels) {
+	        let { x, y, width, height } = label;
+	
+	        // Calculate grid cell coordinates
+	        const gridX = Math.floor(x / gridSize);
+	        const gridY = Math.floor(y / gridSize);
+	
+	        // Find a free grid cell
+	        let adjustedX = x;
+	        let adjustedY = y;
+	        let cellOccupied = true;
+	        while (cellOccupied) {
+	            cellOccupied = false;
+	            for (let dy = 0; dy < Math.ceil(height / gridSize); dy++) {
+	                for (let dx = 0; dx < Math.ceil(width / gridSize); dx++) {
+	                    const cellKey = `${gridX + dx}:${gridY + dy}`;
+	                    if (positionMap.has(cellKey)) {
+	                        cellOccupied = true;
+	                        break;
+	                    }
+	                }
+	                if (cellOccupied) break;
+	            }
+	            if (cellOccupied) {
+	                adjustedY += height; // Move label down by height if overlap detected
+	                gridY = Math.floor(adjustedY / gridSize);
+	            }
+	        }
+	
+	        // Draw the label
+	        f.font = j.p.fontStyle + g + "px " + j.p.font;
+	        f.fillStyle = "#258EA4";
+	        f.fillRect(adjustedX, adjustedY - height + 3, width, height);
+	        f.fillStyle = "#fff";
+	        f.fillText(label.label, adjustedX + 4, adjustedY);
+	
+	        // Mark grid cells as occupied
+	        for (let dy = 0; dy < Math.ceil(height / gridSize); dy++) {
+	            for (let dx = 0; dx < Math.ceil(width / gridSize); dx++) {
+	                const cellKey = `${gridX + dx}:${gridY + dy}`;
+	                positionMap.set(cellKey, true);
+	            }
+	        }
+	    }
+	
 	    return j.currentLabelIndex < b;
-	};
-        this.task_drawEdge = function () {
-            for (var b = a.edges.length, c, d, f = 0, h; f++ < j.p.edgesSpeed && j.currentEdgeIndex < b;) if (h = a.edges[j.currentEdgeIndex], c = h.source, d = h.target, h.hidden || c.hidden || d.hidden || !j.isOnScreen(c) && !j.isOnScreen(d)) j.currentEdgeIndex++;
-            else {
-                c = a.edges[j.currentEdgeIndex++];
-                d = c.source.displayX;
-                h = c.source.displayY;
-                var g = c.target.displayX,
-                    m = c.target.displayY,
-                    l = void 0;
-                   // l = c.attr.color ? c.attr.color : "rgba(255, 0, 0, .6)";
-                if (!l) switch (j.p.edgeColor) {
-                case "source":
-                    l = c.source.color || j.p.defaultNodeColor;
-                    break;
-                case "target":
-                    l = c.target.color || j.p.defaultNodeColor;
-                    break;
-                default:
-                    l = j.p.defaultEdgeColor
-                }
-                var k = i;
-                k.strokeStyle = l;
-                k.lineWidth = c.attr.lineWidth ? c.attr.lineWidth : 0.2;
-                switch (c.type || j.p.defaultEdgeType) {
-                case "curve":
-                    k.beginPath();
-                    k.moveTo(d, h);
-                    k.quadraticCurveTo((d + g) / 2 + (m - h) / 4, (h + m) / 2 + (d - g) / 4, g, m);
-                    k.stroke();
-                    break;
-                default:
-                    k.beginPath(), k.moveTo(d, h), k.lineTo(g, m), k.stroke()
-                }
-            }
-            return j.currentEdgeIndex < b
-        };
+	};		
         this.task_drawNode = function () {
             for (var b = a.nodes.length, c = 0; c++ < j.p.nodesSpeed && j.currentNodeIndex < b;) j.isOnScreen(a.nodes[j.currentNodeIndex]) ? j.drawNode(a.nodes[j.currentNodeIndex++]) : j.currentNodeIndex++;
             return j.currentNodeIndex < b
