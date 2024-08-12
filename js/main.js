@@ -164,6 +164,13 @@ function setupGUI(config) {
 		//hide more information link
 		$(".edge").hide();
 	}
+	// Topic
+	if (config.legend.topicLabel) {
+		$(".topic").next().html(config.legend.topicLabel);
+	} else {
+		//hide more information link
+		$(".topic").hide();
+	}
 	// Colours
 	if (config.legend.nodeLabel) {
 		$(".colours").next().html(config.legend.colorLabel);
