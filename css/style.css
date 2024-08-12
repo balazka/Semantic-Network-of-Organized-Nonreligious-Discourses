@@ -614,13 +614,13 @@ display: none;
 
 /* CSS for DOI section */
 #doi {
-  margin-top: 20px;
-  font-size: 16px;
+  margin-top: 2px;
+  font-size: 12px;
   color: #333;
 }
 
 #doi a {
-  color: #0066cc;
+  color: #8c8c8c;
   text-decoration: none;
 }
 
