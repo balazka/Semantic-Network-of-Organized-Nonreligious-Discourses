@@ -620,11 +620,10 @@ display: none;
 }
 
 #doi a {
-  color: #8c8c8c;
+  color: #cb3d35;
   text-decoration: none;
 }
 
 #doi a:hover {
   text-decoration: underline;
 }
-
