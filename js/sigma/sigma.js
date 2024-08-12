@@ -694,7 +694,7 @@ sigma.classes.EventDispatcher = function () {
             hoverFontStyle: "",
             activeFontStyle: "",
             edgeColor: "default",
-            defaultEdgeColor: "rgba(211, 211, 211, 0.5)",
+            defaultEdgeColor: "#aaa",
             defaultEdgeType: "line",
             defaultNodeColor: "#aaa",
             nodeHoverColor: "node",
