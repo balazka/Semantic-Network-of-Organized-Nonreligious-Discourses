@@ -749,7 +749,7 @@ sigma.classes.EventDispatcher = function () {
 	        } else j.currentLabelIndex++;
 	    }
 	    return j.currentLabelIndex < b;
-	}; 
+	};
         this.task_drawEdge = function () {
             for (var b = a.edges.length, c, d, f = 0, h; f++ < j.p.edgesSpeed && j.currentEdgeIndex < b;) if (h = a.edges[j.currentEdgeIndex], c = h.source, d = h.target, h.hidden || c.hidden || d.hidden || !j.isOnScreen(c) && !j.isOnScreen(d)) j.currentEdgeIndex++;
             else {
