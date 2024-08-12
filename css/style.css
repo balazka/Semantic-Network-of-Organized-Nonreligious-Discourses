@@ -442,9 +442,13 @@ background-position: -51px -122px;
 }
 
 #mainpanel .topic {
-
-background-image:url('/images/Topic_icon.png');
-
+    background-image: url('/images/Topic_icon.png');
+    background-size: contain; /* Ensure the icon fits within the element */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    width: 16px; /* Adjust the width of the icon */
+    height: 16px; /* Adjust the height of the icon */
+    display: inline-block; /* Display the icon inline with text */
+    margin-right: 5px; /* Space between icon and text */
 }
 
 #mainpanel .colours {
