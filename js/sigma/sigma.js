@@ -685,7 +685,7 @@ sigma.classes.EventDispatcher = function () {
             defaultLabelActiveColor: "#000",
             labelSize: "fixed",
             defaultLabelSize: 12,
-            labelSizeRatio: 4,
+            labelSizeRatio: 2,
             labelThreshold: 6,
             font: "Arial",
             hoverFont: "",
@@ -722,7 +722,7 @@ sigma.classes.EventDispatcher = function () {
 	            var d = a.nodes[j.currentLabelIndex++],
 	                f = h;
 	            if (d.displaySize >= j.p.labelThreshold) {
-	                var g = "fixed" == j.p.labelSize ? j.p.defaultLabelSize : j.p.labelSizeRatio * d.displaySize;
+	                var g = "proportional" == j.p.labelSize ? j.p.defaultLabelSize : j.p.labelSizeRatio * d.displaySize;
 	                f.font = (j.p.hoverFontStyle || j.p.fontStyle || "") + " " + g + "px " + (j.p.hoverFont || j.p.font || "");
 	                
 	                var i = Math.round,
