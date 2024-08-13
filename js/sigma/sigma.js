@@ -712,6 +712,10 @@ sigma.classes.EventDispatcher = function () {
         var n = f,
             y = k;
         this.currentBGIndex = this.currentLabelIndex = this.currentBGIndex = this.currentNodeIndex = this.currentEdgeIndex = 0;
+
+
+
+	    
 	this.task_drawLabel = function () {
 	    const labels = [];
 	    const positionMap = new Map(); // To keep track of occupied positions
@@ -722,9 +726,12 @@ sigma.classes.EventDispatcher = function () {
 	            var d = a.nodes[j.currentLabelIndex++],
 	                f = h;
 	            if (d.displaySize >= j.p.labelThreshold) {
-	                var g = "proportional" == j.p.labelSize ? j.p.defaultLabelSize : j.p.labelSizeRatio * d.displaySize;
+	                var g = "proportional" == j.p.labelSize 
+	                    ? Math.max(j.p.defaultLabelSize, j.p.labelSizeRatio * d.displaySize) 
+	                    : j.p.defaultLabelSize;
+	
 	                f.font = (j.p.hoverFontStyle || j.p.fontStyle || "") + " " + g + "px " + (j.p.hoverFont || j.p.font || "");
-	                
+	
 	                var i = Math.round,
 	                    m = i(d.displayX + 10),
 	                    l = i(d.displayY + g / 2 - 2),
@@ -773,7 +780,7 @@ sigma.classes.EventDispatcher = function () {
 	        }
 	
 	        // Draw label
-	        f.font = j.p.fontStyle + g + "px " + j.p.font;
+	        f.font = (j.p.fontStyle || "") + " " + g + "px " + (j.p.font || "");
 	        f.fillStyle = "#258EA4";
 	        f.fillRect(x, y + adjustment - height + 3, width, height);
 	        f.fillStyle = "#fff";
@@ -784,7 +791,10 @@ sigma.classes.EventDispatcher = function () {
 	    }
 	
 	    return j.currentLabelIndex < b;
-	};		
+	};
+
+
+	    
         this.task_drawNode = function () {
             for (var b = a.nodes.length, c = 0; c++ < j.p.nodesSpeed && j.currentNodeIndex < b;) j.isOnScreen(a.nodes[j.currentNodeIndex]) ? j.drawNode(a.nodes[j.currentNodeIndex++]) : j.currentNodeIndex++;
             return j.currentNodeIndex < b
