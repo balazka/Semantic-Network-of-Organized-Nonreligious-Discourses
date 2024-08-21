@@ -10,7 +10,7 @@
   "text": {
     "more": "This is an interactive visualization of the semantic network of organized non-religious discourses. The corpus consists of over 7 million sentences extracted from 4 non-religious magazines published in the United States and the United Kingdom between 1881 and 2019. The nodes are hierarchically clustered by primary topic (LDA), modularity class (Louvain method), and eigenvector centrality. For visualization purposes, only the nodes with a frequency of 100 or higher are included. Connections are instead displayed only if the observed frequency is 400 or higher. For more details, visit the project’s page on GitHub.",
     "intro": "The United States and the United Kingdom, 1881-2019",
-    "title": "Semantic Network of Organized Nonreligious Discourses"
+    "title": "Semantic Network of Organized Non-Religious Discourses"
   },
   "legend": {
     "edgeLabel": "Connection",
