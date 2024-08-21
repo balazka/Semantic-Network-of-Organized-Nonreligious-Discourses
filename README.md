@@ -1,4 +1,4 @@
-# Semantic Network of Organized Nonreligious Discourses
+# Semantic Network of Organized Non-Religious Discourses
 
 ## 1. Theoretical background
 
