@@ -11,9 +11,6 @@ The magazines were split into sentences using spaCy to obtain smaller and more h
 
 Each sentence was conceived as a semantic network of interconnected verbal units (Drieger, 2013). The Louvain method was used to calculate nodes' modularity (see Blondel et al., 2008), while Latent Dirichlet Allocation was used to identify the latent topics in the corpus (see Vayansky & Kumar, 2020). The layout was generated using a circle pack algorithm (Bostock, 2018). The visualization is hierarchical. The nodes are first clustered on the base of their primary topic, as identified by LDA, then clustered on the base of their modularity, and finally grouped by their eigenvector centrality. The nodes are scaled on the base of their eigenvector centrality and color-coded according to their modularity class. While color identifies densely connected communities of terms, both within a specific topic and between different topics, nearby tokens tend to be used more consistently to discuss the same latent topic. To simplify the visualization making it more readable, only the tokens with a frequency of 100 or higher are represented in the interactive tool. While all the represented nodes have a list of their top 10 connections in the information pane, a connection is represented in the visualization only if the two terms appeared in the same sentence at least 400 times.
 
-## 3. More about this visualization
-_Work in progress_
-
 ## 4. Changelog
 This section will cover the differences between the versions uploaded to Zenodo.
 
